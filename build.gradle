@@ -1,15 +1,22 @@
-plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.3.5'
-	id 'io.spring.dependency-management' version '1.1.6'
+buildscript {
+	ext {
+		queryDslVersion = "5.0.0"
+	}
 }
 
-group = 'com.example'
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.8'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+}
+
+group = 'study'
 version = '0.0.1-SNAPSHOT'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
 	}
 }
 
@@ -18,12 +25,61 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// springboot libraries
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	runtimeOnly 'com.h2database:h2'
+
+	// swagger dependency (springboot 3.xx 버전 이상)
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+	// @Valid annotaion library
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// collection library
+	implementation 'org.apache.commons:commons-collections4:4.4'
+
+	// json libraries
+	implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
+
+	// P6Spy query log
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1'
+
+	// querydsl library
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
+	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+	// @ConfigurationProperties library
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// lombok library
+	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok'
+
+	// mapstruct library (mapstruct library 는 lombok 보다 아래에 위치 - 롬복 어노테이션과 충돌 방지)
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+	// mysql library (mysql 8.0 이상)
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// mysql geometric 대응 라이브러리 (springboot data jpa 에서 import 되는 hibernate 버전과 밪춰야 한다.)
+	implementation 'org.hibernate:hibernate-spatial:5.6.12.Final'
+
+	// springboot test library
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
 }
